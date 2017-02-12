@@ -1,0 +1,15 @@
+start{
+write "Prueba de IF anidados";
+write "\nIngrese un numero: ";
+var int a;
+read(a);
+if(a > 0){
+write "El numero es positivo\n";
+if(a < 100){
+write "El numero tambien es menor de 100\n";
+}
+}else{
+write "El numero es negativo\n";
+}
+write "Fin de la prueba de IF anidados";
+}

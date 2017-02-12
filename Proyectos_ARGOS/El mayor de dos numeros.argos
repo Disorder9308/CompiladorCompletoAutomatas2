@@ -1,0 +1,20 @@
+start{
+var int a;
+var int b;
+write "Obtener el mayor de dos numeros;
+write "\n Introduce el numero A: ";
+read(a);
+write "\nIntroduce el numero B: ";
+read(b);
+if(a < b){
+write "\n";
+write b;
+write " es mayor que ";
+write a;
+}else{
+write "\n";
+write a;
+write " es mayor que ";
+write b;
+}
+}

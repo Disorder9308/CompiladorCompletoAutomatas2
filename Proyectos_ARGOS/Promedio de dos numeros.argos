@@ -1,0 +1,13 @@
+start{
+var int num1;
+var int num2;
+write "Promedio de dos numeros\n";
+write "Ingrese el primer numero: ";
+read(num1);
+write "\nIngrese el segundo numero: ";
+read(num2);
+var float resultado = num1 + num2;
+resultado = resultado / 2;
+write "\nEl resultado es: ";
+write resultado;
+}

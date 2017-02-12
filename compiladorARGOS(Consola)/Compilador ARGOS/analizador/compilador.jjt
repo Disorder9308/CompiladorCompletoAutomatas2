@@ -1,0 +1,416 @@
+/*ESTE ES EL .JJT DEL COMPILADOR ARGOS*/
+PARSER_BEGIN(compilador)
+package analizador;
+import java.io.*;
+import java.util.Scanner;
+public class compilador 
+{
+	public static boolean bandera;
+	public static SymbolsTable tabla;
+	public static String result;
+	public static Converter converter;
+	public static void main( String[] args )throws ParseException, Exception
+	{
+		try
+		{
+			Scanner sc = new Scanner(System.in);
+			System.out.println("Presione 1 para analisis lexico, 2 para analisis sintactico: ");
+			int n = sc.nextInt();
+			if(n == 1){
+			System.out.println("Selecciono Analisis Lexico");
+			compilador analizador = new compilador( System.in ) ;
+			analizador.iniciarAnalisisLexico();
+			}
+			else if(n == 2){
+			System.out.println("Selecciono Analisis Sintactico");
+			compilador analizador = new compilador( System.in ) ;
+			SimpleNode nodo = analizador.iniciarAnalisisSintactico();
+			nodo.dump("");
+			System.out.println(result);
+			}
+			System.out.println("Analisis Finalizado Exitosamente");
+		}
+		catch(ParseException e)
+		{
+			System.out.println(e.getMessage());
+			System.out.println("Analisis Finalizado Incorrectamente");
+		}
+	}
+	public static boolean matchTypes(int valueID, int value){
+		switch(valueID){
+			case INT:
+				return (value == NUMERO || value == INT);
+            case FLOAT:
+                return (value == NUMERO || value == DECIMAL || value == INT || value == FLOAT);
+            default: return false;
+		}
+	}
+}
+PARSER_END(compilador)
+
+TOKEN: {
+	<MAIN: "start">{if(compilador.bandera)System.out.println("MAIN - Palabra Reservada: " + image);}
+	|<CONSTANTE: "const">{if(compilador.bandera)System.out.println("CONSTANTE - Palabra Reservada" + image);}
+	|<VARIABLE: "var">{if(compilador.bandera)System.out.println("VARIABLE - Palabra Reservada" + image);}
+	|<INPUT: "read">{if(compilador.bandera)System.out.println("READ - Palabra Reservada: " + image);}
+	|<PRINT: "write">{if(compilador.bandera)System.out.println("WRITE - Palabra Reservada: " + image);}
+	|<IF: "if">{if(compilador.bandera)System.out.println("IF - Palabra Reservada: " + image);}
+	|<ELSE: "else">{if(compilador.bandera)System.out.println("ELSE - Palabra Reservada: " + image);}
+	|<WHILE: "while">{if(compilador.bandera)System.out.println("WHILE - Palabra Reservada: " + image);}
+}
+
+TOKEN: {
+	<OR: "||">{if(compilador.bandera)System.out.println("OR - Operador Lógico: " + image);}
+	|<AND: "&&">{if(compilador.bandera)System.out.println("AND - Operador Lógico: " + image);}
+}
+
+TOKEN: {
+	<ASIGNACION: "=">{if(compilador.bandera)System.out.println("ASIGNACION - Operador Matemático: " + image);}
+	|<RESTA: "-">{if(compilador.bandera)System.out.println("RESTA - Operador Matemático: " + image);}
+	|<SUMA: "+">{if(compilador.bandera)System.out.println("SUMA - Operador Matemáticos: " + image);}
+	|<MULTIPLICACION: "*">{if(compilador.bandera)System.out.println("MULTIPLICACION - Operador Matemático: " + image);}
+	|<DIVISION: "/">{if(compilador.bandera)System.out.println("DIVISION - Operador Matemático: " + image);}
+}
+
+TOKEN: {
+	<MENOR: "<">{if(compilador.bandera)System.out.println("MENOR - Comparador: " + image);}
+	|<MAYOR: ">">{if(compilador.bandera)System.out.println("MAYOR - Comparador: " + image);}
+	|<MENORIGUAL: "<=">{if(compilador.bandera)System.out.println("MENORIGUAL - Comparador: " + image);}
+	|<MAYORIGUAL: ">=">{if(compilador.bandera)System.out.println("MAYORIGUAL - Comparador: " + image);}
+	|<IGUAL: "==">{if(compilador.bandera)System.out.println("IGUAL - Comparador: " + image);}
+	|<DIFERENTE: "!=">{if(compilador.bandera)System.out.println("DIFERENTE - Comparador: " + image);}
+}
+
+TOKEN: {
+	<PARENTA: "(">{if(compilador.bandera)System.out.println("PARENTA - Delimitador: " + image);}
+	|<PARENTC: ")">{if(compilador.bandera)System.out.println("PARENTC - Delimitador: " + image);}
+	|<LLAVEA: "{">{if(compilador.bandera)System.out.println("LLAVEA - Delimitador: " + image);}
+	|<LLAVEC: "}">{if(compilador.bandera)System.out.println("LLAVEC - Delimitador: " + image);}
+	|<PCOMA: ";">{if(compilador.bandera)System.out.println("PCOMA - Delimitador: " + image);}
+	|<DCOMA: "\"">{if(compilador.bandera)System.out.println("DCOMA - Delimitador: " + image);}
+	|<CORCHETEA: "[">{if(compilador.bandera)System.out.println("DCORCHETE - Delimitador: " + image);}
+	|<CORCHETEC: "]">{if(compilador.bandera)System.out.println("SCORCHETE - Delimitador: " + image);}
+}
+
+TOKEN:
+{
+	<INT:"int">{if(compilador.bandera)System.out.println("INT - Tipo de dato: " + image);}
+	| <FLOAT: "float">{if(compilador.bandera)System.out.println("FLOAT - Tipo de dato: " + image);}
+	| <NUMERO : (["0"-"9"])+>{if(compilador.bandera)System.out.println("Numero entero: " + image);}
+	| <DECIMAL : (["0"-"9"])+["."](["0"-"9"])+ > {if(compilador.bandera)System.out.println("Número Decimal: " + image);}
+	| <CADENA : <DCOMA>["a"-"z","A"-"Z","0"-"9"," ","\\"](["a"-"z","A"-"Z","0"-"9"," ",":",";",".", "\\"])*<DCOMA> >{if(compilador.bandera)System.out.println("Cadena de caracteres: " + image);}
+	| <IDENTIFICADOR : ["a"-"z","A"-"Z"](["a"-"z","A"-"Z","0"-"9","_"])*>{if(compilador.bandera)System.out.println("Identificador: " + image);}
+}
+
+SKIP : 
+{ 
+	" "|"\n" | "\r" | "\r\n" | "\t"
+}
+
+void iniciarAnalisisLexico(): 
+{}
+	{
+		(
+	<MAIN>
+	|<CONSTANTE>
+	|<VARIABLE>
+	|<INPUT>
+	|<PRINT>
+	|<IF>
+	|<ELSE>
+	|<WHILE>
+	|<ASIGNACION>
+	|<RESTA>
+	|<SUMA>
+	|<MULTIPLICACION>
+	|<DIVISION>
+	|<MENOR>
+	|<MAYOR>
+	|<OR>
+	|<AND>
+	|<MAYORIGUAL>
+	|<MENORIGUAL>
+	|<IGUAL>
+	|<DIFERENTE>
+	|<PARENTA>
+	|<PARENTC>
+	|<LLAVEA>
+	|<LLAVEC>
+	|<PCOMA>
+	|<DCOMA>
+	|<CORCHETEA>
+	|<CORCHETEC>
+	|<INT>
+	|<FLOAT>
+	|<NUMERO>
+	|<DECIMAL>
+	|<CADENA>
+	|<IDENTIFICADOR>
+	)*
+}
+
+SimpleNode iniciarAnalisisSintactico():
+{}
+	{
+		{tabla = new SymbolsTable(); converter = new Converter();}
+		<MAIN><LLAVEA>({converter.setContext(Converter.MAINBLOCK);}(bloque())*)<LLAVEC>{result = converter.getResult(); return jjtThis;}
+	}
+
+void bloque():
+{}
+	{
+		declararVariable()|declararConstante()|impresion()|asignacion()|entrada()|decisionIF()|cicloWhile()
+	}
+
+void declararConstante():
+{Symbol s; Token a; int typeKind; String typeKindID; String id; String value; int valueKind;}
+	{
+		<CONSTANTE>((a=tipoInteger()|a=tipoFloat()){typeKind = a.kind; typeKindID = a.image;}a=identificador(){id = a.image;})<ASIGNACION>a=operacion(){value = a.image; valueKind = a.kind;}{
+		if(!matchTypes(typeKind, valueKind)){
+		throw new SemanticException("El valor no es admitido: " + value);
+		}
+			}{
+				if(!tabla.contains(id)){
+					s = new Symbol(typeKind, id); 
+					s.setSize(-1);
+					s.setSymbolKind(Symbol.KCONSTANT);
+					tabla.insert(id, s);
+					}else{
+						throw new SemanticException("El simbolo " + id + " ya existe");
+						}
+			}<PCOMA>{converter.insertConstant(typeKind, id, value);}
+	}
+	
+void declararVariable():
+{Symbol s; Token a; int typeKind; String typeKindID; String id; String value = "$"; int valueKind;}
+	{
+		<VARIABLE>((a=tipoInteger()|a=tipoFloat()){typeKind = a.kind; typeKindID = a.image;}a=identificador(){id = a.image;})[<ASIGNACION>a=operacion(){value = a.image; valueKind = a.kind;}{
+		if(!matchTypes(typeKind, valueKind)){
+		throw new SemanticException("El valor no es admitido: " + value);
+		}
+			}]{
+				if(!tabla.contains(id)){
+					s = new Symbol(typeKind, id); 
+					s.setSize(-1);
+					s.setSymbolKind(Symbol.KVARIABLE);
+					tabla.insert(id, s);
+					}else{
+						throw new SemanticException("El simbolo " + id + " ya existe");
+						}
+			}<PCOMA>{converter.insertVariable(typeKind, id, value, "$");}
+	}
+
+Token identificador() : 
+{Token t;}
+	{
+		t = <IDENTIFICADOR> {return t;}
+	}
+	
+Token operacion() :
+{Token t; boolean isFloat = false; int index = -1; String operacion = "";}
+{
+	((t=identificador(){operacion = t.image;}{
+		if(tabla.contains(t.image)){
+			t.kind = tabla.search(t.image).getType(); //Hay que asignarlo en esta primera parte, sino puede que t.kind == IDENTIFICADOR (no nos es util)
+			if(t.kind == FLOAT|| t.kind == INT) {
+				if(tabla.search(t.image).getType() == FLOAT){
+					isFloat = true;
+				}
+			}
+			else{
+				t.kind = tabla.search(t.image).getType(); 
+				t.image = operacion;
+				return t;
+			}
+		}else{
+			throw new SemanticException("El simbolo : " + t.image + " no existe");
+		}
+	}
+	 )|([t=operadorRestar(){operacion = operacion + t.image;}](t=valorNumeroEntero()|(t=valorNumeroDecimal(){
+													isFloat = true;
+							})){operacion = operacion + t.image;})
+	)
+	((t=operadorSumar()|t=operadorRestar()|t=operadorMultiplicar()|t=operadorDividir()){operacion = operacion + " " + t.image + " ";}
+		((t=identificador(){operacion = operacion + t.image;}{
+			if(tabla.contains(t.image)){
+				if(tabla.search(t.image).getType() == FLOAT||tabla.search(t.image).getType() == INT) {
+					if(tabla.search(t.image).getType() == FLOAT){
+						isFloat = true;
+					}
+				}else{
+					//t.kind = tabla.search(t.image).getType(); return t; 
+					//Hay que mandar error ya que significa que no es del tipo adecuado y ya estamos en una operación aritmética
+					throw new SemanticException("No es posible realizar operaciones con esta variable "+t.image);
+				}
+			}else{
+				throw new SemanticException("El simbolo : " + t.image + " no existe");
+			}
+		})|([t=operadorRestar(){operacion = operacion + t.image;}](t=valorNumeroEntero()|(t=valorNumeroDecimal(){
+													isFloat = true;
+							})){operacion = operacion + t.image;})
+		){
+			if(isFloat){
+				t.kind = FLOAT;
+			}else{
+				t.kind = INT;
+			}	
+		})*
+		{t.image = operacion; return t;}
+}
+
+Token tipoInteger() :
+{Token t;}
+	{
+		t = <INT> {return t;}
+	}
+	
+Token tipoFloat() :
+{Token t;}
+	{
+		t = <FLOAT> {return t;}
+	}
+
+Token valorNumeroEntero() :
+{Token t;}
+	{
+		t = <NUMERO>{return t;}
+	}
+	
+Token valorNumeroDecimal() :
+{Token t;}
+	{
+		t= <DECIMAL>{return t;}
+	}
+
+void impresion() :
+{Token as;}
+{
+	<PRINT>(as = operacion() | as = <CADENA>)<PCOMA>{converter.printElement(as.kind, as.image);}
+}
+
+void asignacion() :
+{Token t; int typeKind; String id; String value; int valueKind;}
+{
+	(t = identificador(){
+		if(tabla.contains(t.image)){
+			typeKind = tabla.search(t.image).getType();
+			id = tabla.search(t.image).getValue();
+			if(tabla.search(t.image).getSymbolKind() == Symbol.KCONSTANT){
+				throw new SemanticException("No se puede modificar el valor de: " + id);
+			}
+		} else{
+			throw new SemanticException("El simbolo : " + t.image + " no existe");
+			}
+			})<ASIGNACION> t = operacion(){value = t.image; valueKind = t.kind;}{
+					if(!matchTypes(typeKind, valueKind)){
+						throw new SemanticException("El valor no es admitido: " + value);
+						}}<PCOMA>{converter.insertAssignment(id, value, "$");}
+}
+
+void entrada() :
+{Token t; String id; int kind;}
+{
+	<INPUT><PARENTA>t = identificador(){
+		if(!tabla.contains(t.image)){
+			throw new SemanticException("El simbolo : " + t.image + " no existe");
+		}else{
+			id = t.image;
+			kind = tabla.search(id).getType();
+		}
+	}<PARENTC><PCOMA>{converter.inputElement(kind, id);}
+}
+
+Token operadorMultiplicar() :
+{Token t;}
+	{
+		t=<MULTIPLICACION>{return t;}
+	}
+	
+Token operadorDividir() :
+{Token t;}
+	{
+		t=<DIVISION>{return t;}
+	}
+	
+Token operadorSumar() : 
+{Token t;}
+	{
+		t=<SUMA>{return t;}
+	}
+	
+Token operadorRestar() :
+{Token t;}
+	{
+		t=<RESTA>{return t;}
+	}
+
+	
+Token operadorMenor() #Menor: 
+{Token t;}
+	{
+		t=<MENOR> {return t;}
+	}
+	
+Token operadorMayor() #Mayor:
+{Token t;}
+	{
+		t=<MAYOR> {return t;}
+	}
+	
+Token operadorIgual() #Igual:
+{Token t;}
+	{
+		t=<IGUAL> {return t;}
+	}
+	
+Token operadorMenorIgual() #MenorIgual:
+{Token t;}
+	{
+		t=<MENORIGUAL> {return t;}
+	}
+	
+Token operadorMayorIgual() #MayorIgual:
+{Token t;}
+	{
+		t=<MAYORIGUAL> {return t;}
+	}
+
+Token operadorDiferente() #Diferente:
+{Token t;}
+	{
+		t=<DIFERENTE> {return t;}
+	}
+
+void decisionIF() :
+{String op;}
+{
+	<IF><PARENTA>op = expresionLogica()<PARENTC><LLAVEA>{converter.openIF(op);}(bloque())*{converter.closeBlock();}<LLAVEC>[decisionELSE()]
+}
+
+void decisionELSE() :
+{}
+{
+	{converter.openELSE();}<ELSE><LLAVEA>(bloque())*<LLAVEC>{converter.closeBlock();}
+}
+
+String expresionLogica() :
+{String exp = ""; Token opt; String exp2 = "";}
+{
+	exp = expresionSimple()(((opt = <OR>|opt = <AND>){exp += " " + opt.image;} exp2 = expresionSimple(){exp += exp2;})*){return exp;}
+}
+
+String expresionSimple() :
+{Token t1; Token t2; Token op;}
+{
+
+( (t1=operacion())
+	(op=operadorMenor()|op=operadorMayor()|op=operadorIgual()|op=operadorMayorIgual()|op=operadorMenorIgual()|op=operadorDiferente())
+	((t2=operacion())))
+		{return t1.image + " " + op.image + " " + t2.image;}
+}
+
+void cicloWhile() :
+{String op;}
+{
+	<WHILE><PARENTA>op = expresionLogica(){converter.openWhile(op);}<PARENTC><LLAVEA>(bloque())*<LLAVEC>{converter.closeBlock();}
+}

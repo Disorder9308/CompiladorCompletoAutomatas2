@@ -1,0 +1,12 @@
+start{
+var int a;
+var int b;
+write "Suma de dos numeros enteros\n";
+write "Ingrese el primer numero: ";
+read(a);
+write "Ingrese el segundo numero: ";
+read(b);
+var int resp = a + b;
+write "El resultado de la suma es: ";
+write resp;
+}

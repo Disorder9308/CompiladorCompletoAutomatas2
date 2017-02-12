@@ -1,0 +1,16 @@
+start{
+var int cantidad;
+var int it = 0;
+write "Impresion de numeros en ciclo";
+write "\nIngrese la cantidad de numeros a imprimir: ";
+read(cantidad);
+write "Empecemos...";
+while(it < cantidad){
+it = it + 1;
+write "\nNumero: ";
+write it;
+}
+write "\nSe imprimieron ";
+write cantidad;
+write " numeros";
+}

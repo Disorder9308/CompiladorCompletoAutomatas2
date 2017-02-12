@@ -1,0 +1,3 @@
+start{
+write "Hola mundo desde ARGOS";
+}
